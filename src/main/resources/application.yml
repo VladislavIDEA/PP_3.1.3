@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: projectPP_3.1.1
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/exampledb?useSSL=false&serverTimezone=UTC
+    username: root123
+    password: "root123@vlad"
+
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        hbm2ddl:
+          auto: create
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
