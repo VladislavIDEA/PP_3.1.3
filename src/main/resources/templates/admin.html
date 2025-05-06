@@ -1,68 +1,81 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Admin Panel</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<h1>Панель администратора</h1>
-
-<h2>Список пользователей</h2>
-<table border="1">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Roles</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="user : ${users}">
-        <td th:text="${user.id}"></td>
-        <td th:text="${user.username}"></td>
-        <td th:text="${user.email}"></td>
-        <td>
-            <span th:each="role : ${user.roles}" th:text="${role.name + ' '}"></span>
-        </td>
-        <td>
-            <form th:action="@{/admin}" method="post" th:object="${user}">
-                <input type="hidden" th:field="*{id}" />
-                <input type="hidden" th:field="*{password}" />
-                <button type="submit">Edit</button>
-            </form>
-            <form th:action="@{/admin/delete/{id}(id=${user.id})}" method="post">
-                <button type="submit" onclick="return confirm('Удалить пользователя?')">Delete</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<h2>Добавить нового пользователя</h2>
-<form th:action="@{/admin}" th:object="${newUser}" method="post">
-    <label>Username:</label>
-    <input type="text" th:field="*{username}" required/><br/>
-
-    <label>Email:</label>
-    <input type="email" th:field="*{email}" required/><br/>
-
-    <label>Password:</label>
-    <input type="password" th:field="*{password}" required/><br/>
-
-    <label>Роли:</label><br/>
-    <div th:each="role : ${roles}">
-        <input type="checkbox" th:value="${role.id}" th:field="*{roleIds}" />
-        <span th:text="${role.name}"></span><br/>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Admin Panel</a>
+        <div class="navbar-text text-light ms-auto me-3">
+            <span th:text="${#authentication.principal.username}"></span> with roles:
+            <span th:each="role : ${#authentication.principal.authorities}" th:text="${role.authority} + ' '"></span>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <button class="btn btn-outline-danger">Logout</button>
+        </form>
     </div>
+</nav>
 
-    <button type="submit">Создать</button>
-</form>
+<div class="container mt-4">
+    <h2>Users table</h2>
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">New User</button>
 
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Logout</button>
-</form>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Age</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.lastName}"></td>
+                <td th:text="${user.age}"></td>
+                <td th:text="${user.email}"></td>
+                <td>
+                        <span th:each="role : ${user.roles}" class="badge bg-secondary me-1"
+                              th:text="${role.name}"></span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                            data-bs-target="#editUserModal"
+                            th:attr="data-user-id=${user.id}">Edit</button>
+                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#deleteUserModal"
+                            th:attr="data-user-id=${user.id}">Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:replace="fragments/modals :: addUserModal"></div>
+<div th:replace="fragments/modals :: editUserModal"></div>
+<div th:replace="fragments/modals :: deleteUserModal"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editModal = document.getElementById('editUserModal');
+        editModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const userId = button.getAttribute('data-user-id');
+        });
+    });
+</script>
 </body>
 </html>
 

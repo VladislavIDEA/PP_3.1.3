@@ -14,7 +14,7 @@
 
     <!-- Основная информация о проекте -->
     <groupId>ru.ilyasov.springBOOT</groupId>
-    <artifactId>projectPP_3.1.1</artifactId>
+    <artifactId>3</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>projectPP_3.1.1</name>
     <description>Project code for KataPP with Spring Boot</description>
@@ -69,6 +69,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+            <version>3.1.2.RELEASE</version>
         </dependency>
 
         <!-- Тестирование -->
