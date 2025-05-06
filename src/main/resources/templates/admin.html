@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Admin Page</title>
+    <title>Admin Panel</title>
     <meta charset="UTF-8">
 </head>
 <body>
 <h1>Панель администратора</h1>
 
-<h3>Информация о пользователях</h3>
+<!-- 🔽 Список пользователей -->
+<h2>Список пользователей</h2>
 <table border="1">
     <thead>
     <tr>
@@ -15,6 +16,7 @@
         <th>Username</th>
         <th>Email</th>
         <th>Roles</th>
+        <th>Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -25,13 +27,45 @@
         <td>
             <span th:each="role : ${user.roles}" th:text="${role.name + ' '}"></span>
         </td>
+        <td>
+            <form th:action="@{/admin}" method="post" th:object="${user}">
+                <input type="hidden" th:field="*{id}" />
+                <input type="hidden" th:field="*{password}" />
+                <button type="submit">Edit</button>
+            </form>
+            <form th:action="@{/admin/delete/{id}(id=${user.id})}" method="post">
+                <button type="submit" onclick="return confirm('Удалить пользователя?')">Delete</button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>
 
+<!-- 🔽 Форма создания нового пользователя -->
+<h2>Добавить нового пользователя</h2>
+<form th:action="@{/admin}" th:object="${newUser}" method="post">
+    <label>Username:</label>
+    <input type="text" th:field="*{username}" required/><br/>
+
+    <label>Email:</label>
+    <input type="email" th:field="*{email}" required/><br/>
+
+    <label>Password:</label>
+    <input type="password" th:field="*{password}" required/><br/>
+
+    <label>Роли:</label><br/>
+    <div th:each="role : ${roles}">
+        <input type="checkbox" th:value="${role.id}" th:field="*{roleIds}" />
+        <span th:text="${role.name}"></span><br/>
+    </div>
+
+    <button type="submit">Создать</button>
+</form>
+
 <form th:action="@{/logout}" method="post">
     <button type="submit">Logout</button>
 </form>
-
 </body>
 </html>
+
+
