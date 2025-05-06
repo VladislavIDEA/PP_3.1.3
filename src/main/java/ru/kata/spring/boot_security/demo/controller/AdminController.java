@@ -23,7 +23,6 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-    // READ: Главная страница администратора со списком пользователей
     @GetMapping
     public String adminHome(Model model) {
         model.addAttribute("users", userService.getAllUsers());
@@ -32,7 +31,6 @@ public class AdminController {
         return "admin";
     }
 
-    // CREATE: Сохранение нового пользователя
     @PostMapping("/create")
     public String createUser(@ModelAttribute("newUser") User user,
                              @RequestParam(value = "roleIds", required = false) List<Long> roleIds) {
@@ -40,7 +38,6 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    // READ: Переход на форму редактирования
     @GetMapping("/edit")
     public String editUser(@RequestParam("id") Long id, Model model) {
         User user = userService.getUserById(id);
@@ -49,7 +46,6 @@ public class AdminController {
         return "edit_user";
     }
 
-    // UPDATE: Сохранение изменений пользователя
     @PostMapping("/update")
     public String updateUser(@ModelAttribute("user") User user,
                              @RequestParam(value = "roleIds", required = false) List<Long> roleIds) {
@@ -57,7 +53,6 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    // DELETE: Удаление пользователя
     @PostMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
