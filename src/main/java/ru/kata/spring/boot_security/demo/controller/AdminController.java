@@ -2,63 +2,85 @@ package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import javax.validation.Valid;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-
     private final UserService userService;
     private final RoleService roleService;
 
     @Autowired
-    public AdminController(UserService userService, RoleService roleService) {
+    private AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
     }
 
     @GetMapping
-    public String adminHome(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
-        model.addAttribute("newUser", new User()); // для формы создания
-        model.addAttribute("allRoles", roleService.findAll());
-        return "admin";
+    public String listUsers(ModelMap model) {
+        model.addAttribute("users", userService.findAll());
+        return "userListAdmin";
     }
 
-    @PostMapping("/create")
-    public String createUser(@ModelAttribute("newUser") User user,
-                             @RequestParam(value = "roleIds", required = false) List<Long> roleIds) {
-        userService.saveUserWithRoles(user, roleIds);
+    @GetMapping("/add")
+    public String addUserForm(ModelMap model) {
+        model.addAttribute("user", new User());
+        model.addAttribute("allRoles", roleService.findAll());
+        return "userAddAdmin";
+    }
+
+    @PostMapping("/add")
+    public String addUser(@ModelAttribute("user") User user,
+                          @RequestParam("roles") List<String> roleNames) {
+        Set<Role> roles = new HashSet<>();
+        for (String roleName : roleNames) {
+            roles.add(roleService.findByName(roleName));
+        }
+        user.setRoles(roles);
+        userService.add(user);
         return "redirect:/admin";
     }
+
 
     @GetMapping("/edit")
-    public String editUser(@RequestParam("id") Long id, Model model) {
-        User user = userService.getUserById(id);
+    public String editUserForm(@RequestParam("id") int id, ModelMap model) {
+        User user = userService.findById(id);
         model.addAttribute("user", user);
         model.addAttribute("allRoles", roleService.findAll());
-        return "edit_user";
+        return "userEditAdmin";
     }
 
-    @PostMapping("/update")
-    public String updateUser(@ModelAttribute("user") User user,
-                             @RequestParam(value = "roleIds", required = false) List<Long> roleIds) {
-        userService.updateUserWithRoles(user, roleIds);
+    @PostMapping("/edit")
+    public String editUser(@RequestParam("id") int id, @ModelAttribute("user") @Valid User user, BindingResult result) {
+        if (result.hasErrors()) {
+            return "userEditAdmin";
+        }
+
+        Optional<User> userWithSameEmail = userService.findByEmail(user.getEmail());
+        if (userWithSameEmail.isPresent() && userWithSameEmail.get().getId() != id) {
+
+            result.rejectValue("email", "error.user", "Этот email уже используется другим пользователем.");
+            return "userEditAdmin";
+        }
+        userService.update(id, user);
         return "redirect:/admin";
     }
 
-    @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
+    @GetMapping("/delete")
+    public String deleteUser(@RequestParam("id") int id) {
+        userService.delete(id);
         return "redirect:/admin";
     }
 }
-
-
-
