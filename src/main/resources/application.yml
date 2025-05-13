@@ -4,7 +4,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/exampledb?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/exampledb123?useSSL=false&serverTimezone=UTC
     username: root123
     password: "root123@vlad"
 
@@ -13,7 +13,7 @@ spring:
       hibernate:
         show_sql: true
         hbm2ddl:
-          auto: create
+          auto: create-drop
         dialect: org.hibernate.dialect.MySQL8Dialect
 
   mvc:

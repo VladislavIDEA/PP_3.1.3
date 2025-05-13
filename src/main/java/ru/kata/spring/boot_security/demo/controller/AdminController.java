@@ -5,16 +5,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import javax.validation.Valid;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
@@ -42,15 +37,24 @@ public class AdminController {
     }
 
     @PostMapping("/add")
-    public String addUser(@ModelAttribute("user") User user,
-                          @RequestParam("roles") List<String> roleNames) {
-        Set<Role> roles = new HashSet<>();
-        for (String roleName : roleNames) {
-            roles.add(roleService.findByName(roleName));
+    public String addUser(@ModelAttribute("user") @Valid User user,
+                          BindingResult bindingResult,
+                          ModelMap model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("allRoles", roleService.findAll());
+            return "userAddAdmin";
         }
-        user.setRoles(roles);
-        userService.add(user);
-        return "redirect:/admin";
+
+        try {
+            userService.add(user);
+            return "redirect:/admin";
+        } catch (Exception e) {
+            model.addAttribute("error",
+                    "Ошибка при добавлении пользователя: " + e.getMessage());
+            model.addAttribute("allRoles", roleService.findAll());
+            return "userAddAdmin";
+        }
     }
 
 
@@ -63,19 +67,23 @@ public class AdminController {
     }
 
     @PostMapping("/edit")
-    public String editUser(@RequestParam("id") int id, @ModelAttribute("user") @Valid User user, BindingResult result) {
-        if (result.hasErrors()) {
+    public String editUser(@RequestParam("id") int id,
+                           @ModelAttribute("user") @Valid User user,
+                           BindingResult bindingResult,
+                           ModelMap model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("allRoles", roleService.findAll());
             return "userEditAdmin";
         }
 
-        Optional<User> userWithSameEmail = userService.findByEmail(user.getEmail());
-        if (userWithSameEmail.isPresent() && userWithSameEmail.get().getId() != id) {
-
-            result.rejectValue("email", "error.user", "Этот email уже используется другим пользователем.");
+        try {
+            userService.update(id, user);
+            return "redirect:/admin";
+        } catch (IllegalArgumentException e) {
+            bindingResult.rejectValue("email", "error.user", e.getMessage());
+            model.addAttribute("allRoles", roleService.findAll());
             return "userEditAdmin";
         }
-        userService.update(id, user);
-        return "redirect:/admin";
     }
 
     @GetMapping("/delete")

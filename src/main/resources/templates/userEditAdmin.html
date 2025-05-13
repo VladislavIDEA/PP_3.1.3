@@ -1,48 +1,53 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Edit User</title>
-</head>
-<body>
-<h1>Edit User</h1>
+<div class="modal-header bg-dark text-white">
+    <h5 class="modal-title">Edit User</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form th:action="@{/admin/edit}" method="post" th:object="${user}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" th:field="*{id}"/>
 
-<form th:action="@{/admin/edit}" method="post" th:object="${user}">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <div class="mb-3">
+            <label class="form-label">First name</label>
+            <input type="text" class="form-control" th:field="*{firstName}" required>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+        </div>
 
-    <input type="hidden" th:field="*{id}"/>
+        <div class="mb-3">
+            <label class="form-label">Last name</label>
+            <input type="text" class="form-control" th:field="*{lastName}" required>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+        </div>
 
-    <label for="firstName">Имя:</label>
-    <input type="text" id="firstName" th:field="*{firstName}" required/>
-    <div style="color: aqua" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">firstName Error</div>
-    <br/>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" th:field="*{email}" required>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        </div>
 
-    <label for="lastName">Фамилия:</label>
-    <input type="text" id="lastName" th:field="*{lastName}" required/>
-    <div style="color: aqua" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">lastName Error</div>
-    <br/>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" th:field="*{password}" required>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+        </div>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" th:field="*{email}" required/>
-    <div style="color: aqua" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">email Error</div>
-    <br/>
+        <div class="mb-3">
+            <label class="form-label">Roles</label>
+            <div class="d-flex flex-column gap-2">
+                <div th:each="role : ${allRoles}" class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           th:id="${'role_' + role.name}"
+                           th:value="${role.name}"
+                           th:field="*{roles}">
+                    <label class="form-check-label" th:for="${'role_' + role.name}"
+                           th:text="${role.name}"></label>
+                </div>
+            </div>
+        </div>
 
-    <label for="password">Пароль:</label>
-    <input type="password" id="password" th:field="*{password}" required/>
-    <div style="color: aqua" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password Error</div>
-    <br/>
-
-    <label>Роли:</label><br/>
-    <div th:each="role : ${allRoles}">
-        <input type="checkbox" th:field="*{roles}" th:value="${role.name}" id="role__${role.name}"/>
-        <label th:for="|role__${role.name}|" th:text="${role.name}"></label><br/>
-    </div>
-
-
-    <button type="submit">Обновить</button>
-    <a href="/logout">Выйти</a>
-</form>
-
-<a href="/admin">К списку пользователей</a>
-</body>
-</html>
+        <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+    </form>
+</div>

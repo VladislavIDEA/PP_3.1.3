@@ -8,8 +8,10 @@ import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserServiceImp implements UserService {
@@ -30,26 +32,57 @@ public class UserServiceImp implements UserService {
     @Transactional
     @Override
     public void add(User user) {
-        if (user.getRoles().isEmpty()) {
-            Role defaultRole = roleService.findByName("ROLE_USER");
-            user.getRoles().add(defaultRole);
+        if (findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email уже используется");
         }
+
+        Set<Role> roles = new HashSet<>();
+        if (user.getRoleIds() != null && !user.getRoleIds().isEmpty()) {
+            for (Integer roleId : user.getRoleIds()) {
+                Role role = roleService.findById(roleId);
+                if (role != null) {
+                    roles.add(role);
+                }
+            }
+        } else {
+            Role defaultRole = roleService.findByName("USER");
+            if (defaultRole == null) {
+                defaultRole = new Role("USER");
+                roleService.add(defaultRole);
+            }
+            roles.add(defaultRole);
+        }
+        user.setRoles(roles);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
     @Transactional
     @Override
-    public void update(int id, User user) {
-        User userToUpdate = userRepository.findById(id).orElse(null);
-        if (userToUpdate != null) {
-            userToUpdate.setFirstName(user.getFirstName());
-            userToUpdate.setLastName(user.getLastName());
-            userToUpdate.setEmail(user.getEmail());
-            userToUpdate.setPassword(passwordEncoder.encode(user.getPassword()));
-            userToUpdate.setRoles(user.getRoles());
-            userRepository.save(userToUpdate);
+    public void update(int id, User updatedUser) {
+        User existingUser = findById(id);
+        if (existingUser == null) {
+            throw new IllegalArgumentException("User not found");
         }
+
+        if (!existingUser.getEmail().equals(updatedUser.getEmail()) &&
+                findByEmail(updatedUser.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email уже используется");
+        }
+
+        existingUser.setFirstName(updatedUser.getFirstName());
+        existingUser.setLastName(updatedUser.getLastName());
+        existingUser.setEmail(updatedUser.getEmail());
+
+        if (!updatedUser.getPassword().equals(existingUser.getPassword())) {
+            existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
+
+        if (!updatedUser.getRoles().isEmpty()) {
+            existingUser.setRoles(updatedUser.getRoles());
+        }
+
+        userRepository.save(existingUser);
     }
 
     @Transactional

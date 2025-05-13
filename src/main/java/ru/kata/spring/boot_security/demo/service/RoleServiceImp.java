@@ -14,7 +14,7 @@ public class RoleServiceImp implements RoleService {
 
     private final RoleRepository roleRepository;
 
-    public RoleServiceImp(RoleRepository roleRepository, UserRepository userRepository) {
+    public RoleServiceImp(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
 
@@ -31,10 +31,11 @@ public class RoleServiceImp implements RoleService {
 
     @Override
     public Role findByName(String name) {
-        List<Role> roles = roleRepository.findByName(name);
-        if (roles.isEmpty()) {
-            throw new RuntimeException("Role not found: " + name);
-        }
-        return roles.get(0);
+        return (Role) roleRepository.findByName(name);
+    }
+
+    @Override
+    public Role findById(int id) {
+        return roleRepository.findById(id).orElse(null);
     }
 }
