@@ -37,10 +37,8 @@ public class InitUserToDB {
             rolesAdmin.add(administratorRole);
             rolesUser.add(userRole);
 
-            User administrator = new User("Admin", "Admin", "admin@admin.ru",
-                    passwordEncoder.encode("admin"), rolesAdmin);
-            User user = new User("User", "User", "user@user.ru",
-                    passwordEncoder.encode("user"), rolesUser);
+            User administrator = new User("Admin", "Admin", "admin@admin.ru", "admin", rolesAdmin);
+            User user = new User("User", "User", "user@user.ru", "user", rolesUser);
 
             roleService.add(administratorRole);
             roleService.add(userRole);
