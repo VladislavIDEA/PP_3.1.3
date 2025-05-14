@@ -34,8 +34,4 @@ public class RoleServiceImp implements RoleService {
                 .orElseThrow(() -> new RuntimeException("Role not found: " + name));
     }
 
-    @Override
-    public Role findById(int id) {
-        return roleRepository.findById(id).orElse(null);
-    }
 }

@@ -32,27 +32,10 @@ public class UserServiceImp implements UserService {
     @Transactional
     @Override
     public void add(User user) {
-        if (findByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email уже используется");
+        if (user.getRoles().isEmpty()) {
+            Role defaultRole = roleService.findByName("ROLE_USER");
+            user.getRoles().add(defaultRole);
         }
-
-        Set<Role> roles = new HashSet<>();
-        if (user.getRoleIds() != null && !user.getRoleIds().isEmpty()) {
-            for (Integer roleId : user.getRoleIds()) {
-                Role role = roleService.findById(roleId);
-                if (role != null) {
-                    roles.add(role);
-                }
-            }
-        } else {
-            Role defaultRole = roleService.findByName("USER");
-            if (defaultRole == null) {
-                defaultRole = new Role("USER");
-                roleService.add(defaultRole);
-            }
-            roles.add(defaultRole);
-        }
-        user.setRoles(roles);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }

@@ -29,21 +29,23 @@ public class InitUserToDB {
     @Transactional
     public void init() {
         if (roleService.findAll().isEmpty()) {
-            Role administratorRole = new Role("ADMIN");
-            Role userRole = new Role("USER");
 
+
+            Role adminRole = new Role("ROLE_ADMIN");
+            Role userRole = new Role("ROLE_USER");
+
+            // set roles
             Set<Role> rolesAdmin = new HashSet<>();
             Set<Role> rolesUser = new HashSet<>();
-            rolesAdmin.add(administratorRole);
+            rolesAdmin.add(adminRole);
             rolesUser.add(userRole);
-
-            User administrator = new User("Admin", "Admin", "admin@admin.ru", "admin", rolesAdmin);
+            User admin = new User("Admin", "Admin", "admin@admin.ru", "admin", rolesAdmin);
             User user = new User("User", "User", "user@user.ru", "user", rolesUser);
-
-            roleService.add(administratorRole);
+            roleService.add(adminRole);
             roleService.add(userRole);
-            userService.add(administrator);
+            userService.add(admin);
             userService.add(user);
+
         }
     }
 }

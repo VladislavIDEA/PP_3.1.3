@@ -49,9 +49,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList());
+        return Collections.singletonList(
+                new SimpleGrantedAuthority(
+                        this.getRoles().iterator().next().getName()));
     }
 
     public void setId(int id) {
@@ -65,7 +65,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.firstName;
     }
 
     @Override

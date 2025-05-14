@@ -15,8 +15,12 @@ spring:
         hbm2ddl:
           auto: create-drop
         dialect: org.hibernate.dialect.MySQL8Dialect
+  logging:
+    level:
+      org.springframework.security: DEBUG
 
   mvc:
     hiddenmethod:
       filter:
         enabled: true
+
