@@ -124,11 +124,10 @@
                 document.getElementById('modalContent').innerHTML = html;
                 $('#dynamicModal').modal('show');
 
-                // НАВЕШАТЬ ОБРАБОТЧИК НА ФОРМУ
                 const form = document.querySelector('#modalContent form');
                 if (form) {
                     form.addEventListener('submit', async function (event) {
-                        event.preventDefault(); // Остановить обычную отправку
+                        event.preventDefault();
 
                         const formData = new FormData(form);
 
@@ -138,10 +137,10 @@
                         });
 
                         if (response.redirected) {
-                            window.location.href = response.url; // если сервер редиректит - перейти
+                            window.location.href = response.url;
                         } else {
                             const text = await response.text();
-                            document.getElementById('modalContent').innerHTML = text; // если ошибка валидации - заново отобразить форму
+                            document.getElementById('modalContent').innerHTML = text;
                         }
                     });
                 }

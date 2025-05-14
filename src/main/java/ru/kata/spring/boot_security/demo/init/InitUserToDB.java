@@ -19,7 +19,9 @@ public class InitUserToDB {
     private final PasswordEncoder passwordEncoder;
 
 
-    public InitUserToDB(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
+    public InitUserToDB(UserService userService,
+                        RoleService roleService,
+                        PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
@@ -34,13 +36,20 @@ public class InitUserToDB {
             Role adminRole = new Role("ROLE_ADMIN");
             Role userRole = new Role("ROLE_USER");
 
-            // set roles
             Set<Role> rolesAdmin = new HashSet<>();
             Set<Role> rolesUser = new HashSet<>();
             rolesAdmin.add(adminRole);
             rolesUser.add(userRole);
-            User admin = new User("Admin", "Admin", "admin@admin.ru", "admin", rolesAdmin);
-            User user = new User("User", "User", "user@user.ru", "user", rolesUser);
+            User admin = new User("Admin",
+                    "Admin",
+                    "admin@admin.ru",
+                    "admin",
+                    rolesAdmin);
+            User user = new User("User",
+                    "User",
+                    "user@user.ru",
+                    "user",
+                    rolesUser);
             roleService.add(adminRole);
             roleService.add(userRole);
             userService.add(admin);

@@ -63,7 +63,9 @@ public class AdminController {
     }
 
     @PostMapping("/edit")
-    public String editUser(@RequestParam("id") int id, @ModelAttribute("user") @Valid User user, BindingResult result) {
+    public String editUser(@RequestParam("id") int id,
+                           @ModelAttribute("user") @Valid User user,
+                           BindingResult result) {
         if (result.hasErrors()) {
             return "userEditAdmin";
         }
@@ -71,7 +73,9 @@ public class AdminController {
         Optional<User> userWithSameEmail = userService.findByEmail(user.getEmail());
         if (userWithSameEmail.isPresent() && userWithSameEmail.get().getId() != id) {
 
-            result.rejectValue("email", "error.user", "Этот email уже используется другим пользователем.");
+            result.rejectValue("email",
+                    "error.user",
+                    "Этот email уже используется другим пользователем.");
             return "userEditAdmin";
         }
         userService.update(id, user);
