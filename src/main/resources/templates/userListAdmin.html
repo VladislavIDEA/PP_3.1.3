@@ -65,6 +65,7 @@
                         <th>ID</th>
                         <th>First Name</th>
                         <th>Last Name</th>
+                        <th>Age</th>
                         <th>Email</th>
                         <th>Role</th>
                         <th>Edit</th>
@@ -76,6 +77,7 @@
                         <td th:text="${user.id}">1</td>
                         <td th:text="${user.firstName}">FirstName</td>
                         <td th:text="${user.lastName}">LastName</td>
+                        <td th:text="${user.age}">30</td>
                         <td th:text="${user.email}">email@example.com</td>
                         <td>
                             <th:block th:each="role : ${user.roles}">
@@ -89,7 +91,8 @@
                             </button>
                         </td>
                         <td>
-                            <button class="btn btn-danger btn-sm" th:onclick="'deleteUser(' + ${user.id} + ')'">
+                            <button class="btn btn-danger btn-sm"
+                                    th:onclick="'openModal(\'/admin/delete?id=' + ${user.id} + '\')'">
                                 Delete
                             </button>
                         </td>
@@ -151,17 +154,17 @@
 
 
 <script>
-    function deleteUser(id) {
-        if (confirm('Вы уверены, что хотите удалить пользователя?')) {
-            fetch('/admin/delete?id=' + id, {method: 'GET'})
-                .then(response => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                    }
-                })
-                .catch(error => console.error('Ошибка при удалении пользователя:', error));
-        }
-    }
+    // function deleteUser(id) {
+    //     if (confirm('Вы уверены, что хотите удалить пользователя?')) {
+    //         fetch('/admin/delete?id=' + id, {method: 'GET'})
+    //             .then(response => {
+    //                 if (response.redirected) {
+    //                     window.location.href = response.url;
+    //                 }
+    //             })
+    //             .catch(error => console.error('Ошибка при удалении пользователя:', error));
+    //     }
+    // }
 </script>
 
 </body>

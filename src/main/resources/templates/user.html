@@ -64,11 +64,19 @@
     <span class="navbar-text text-light">
         <span style="font-weight: 650;" th:text="${user.getEmail()}">user@mail.ru</span>
         with roles:
-        <span th:text="${user.getRoles()}">USER</span>
+        <span th:each="role : ${user.roles}" th:text="${role.name} + ' '">USER</span>
     </span>
-    <a href="/logout" class="text-muted" style="text-decoration: none;">
-        Logout
-    </a>
+    <div>
+        <!-- Кнопка "Back to Admin" (видна только админам) -->
+        <a th:if="${#lists.contains(user.getRoles(), 'ROLE_ADMIN')}"
+           href="/admin"
+           class="btn btn-outline-light mr-2">
+            Admin Panel
+        </a>
+        <a href="/logout" class="text-muted" style="text-decoration: none;">
+            Logout
+        </a>
+    </div>
 </nav>
 
 <!-- Sidebar (слева) --------------------------------------------------------------------->
@@ -109,6 +117,7 @@
                     <th>ID</th>
                     <th>First name</th>
                     <th>Last name</th>
+                    <th>Age</th>
                     <th>Email</th>
                     <th>Role</th>
                 </tr>
@@ -117,8 +126,11 @@
                 <td th:text="${user.getId()}">1</td>
                 <td th:text="${user.getFirstName()}">user</td>
                 <td th:text="${user.getLastName()}">user</td>
+                <td th:text="${user.getAge()}">25</td>
                 <td th:text="${user.getEmail()}">user@mail.ru</td>
-                <td th:text="${user.getRoles()}">USER</td>
+                <td>
+                    <span th:each="role : ${user.roles}" th:text="${role.name} + ' '"></span>
+                </td>
                 </tbody>
             </table>
         </div>

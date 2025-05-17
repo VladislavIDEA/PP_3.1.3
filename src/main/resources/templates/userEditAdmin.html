@@ -3,46 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit User</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-label {
+            text-align: center;
+            display: block;
+            width: 100%;
+        }
+        .form-actions {
+            margin-top: 1.5rem;
+        }
+    </style>
 </head>
 <body>
-<h1>Edit User</h1>
 
-<form th:action="@{/admin/edit}" method="post" th:object="${user}">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+<div class="container mt-3">
+    <h2 class="mb-3 text-center">Edit User</h2>
 
-    <input type="hidden" th:field="*{id}"/>
+    <form th:action="@{/admin/edit}" method="post" th:object="${user}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" th:field="*{id}"/>
 
-    <label for="firstName">Имя:</label>
-    <input type="text" id="firstName" th:field="*{firstName}" required/>
-    <div style="color: aqua" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">firstName Error</div>
-    <br/>
+        <div class="mb-3">
+            <label for="id" class="form-label">ID</label>
+            <input type="text" id="id" class="form-control text-center" th:field="*{id}" readonly>
+        </div>
 
-    <label for="lastName">Фамилия:</label>
-    <input type="text" id="lastName" th:field="*{lastName}" required/>
-    <div style="color: aqua" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">lastName Error</div>
-    <br/>
+        <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <input type="text" id="firstName" class="form-control" th:field="*{firstName}" required>
+        </div>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" th:field="*{email}" required/>
-    <div style="color: aqua" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">email Error</div>
-    <br/>
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <input type="text" id="lastName" class="form-control" th:field="*{lastName}" required>
+        </div>
 
-    <label for="password">Пароль:</label>
-    <input type="password" id="password" th:field="*{password}" required/>
-    <div style="color: aqua" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password Error</div>
-    <br/>
+        <div class="mb-3">
+            <label for="age" class="form-label">Age</label>
+            <input type="number" id="age" class="form-control" th:field="*{age}" min="0" max="120" required>
+        </div>
 
-    <label>Роли:</label><br/>
-    <div th:each="role : ${allRoles}">
-        <input type="checkbox" th:field="*{roles}" th:value="${role.name}" id="role__${role.name}"/>
-        <label th:for="|role__${role.name}|" th:text="${role.name}"></label><br/>
-    </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" th:field="*{email}" required>
+        </div>
 
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" class="form-control" th:field="*{password}" placeholder="Оставьте пустым чтобы сохранить текущий пароль">
+        </div>
 
-    <button type="submit">Обновить</button>
-    <a href="/logout">Выйти</a>
-</form>
+        <div class="mb-3">
+            <label for="roles" class="form-label">Roles</label>
+            <select id="roles" class="form-select" multiple size="2" name="roles">
+                <option th:each="role : ${allRoles}"
+                        th:value="${role.name}"
+                        th:text="${role.name}"
+                        th:selected="${user.roles.contains(role)}">
+                </option>
+            </select>
+        </div>
 
-<a href="/admin">К списку пользователей</a>
+        <div class="d-flex gap-2 justify-content-center form-actions">
+            <button type="submit" class="btn btn-primary">Edit</button>
+            <a href="/admin" class="btn btn-secondary">Close</a>
+        </div>
+    </form>
+</div>
+
+<!-- Bootstrap JS (optional, only if you plan to use interactive components) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

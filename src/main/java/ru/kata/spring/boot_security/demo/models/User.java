@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -29,13 +30,18 @@ public class User implements UserDetails {
     @Column(name = "last_name")
     private String lastName;
 
+    @NotNull
+    @Min(1)
+    @Max(120)
+    @Column(name = "age")
+    private Byte age;
+
     @NotEmpty(message = "Email не может быть пустым")
     @Email(message = "некорректный Email")
     @Column(unique = true, name = "email")
     private String email;
 
 
-    @NotEmpty(message = "Пароль не может быть пустым")
     @Column(name = "password")
     private String password;
 
@@ -47,9 +53,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(
-                new SimpleGrantedAuthority(
-                        this.getRoles().iterator().next().getName()));
+        return getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
     }
 
     public void setId(int id) {
@@ -89,13 +95,16 @@ public class User implements UserDetails {
     public User() {
     }
 
+
     public User(String firstName,
                 String lastName,
                 String email,
+                Byte age,
                 String password,
                 Set<Role> roles) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.age = age;
         this.email = email;
         this.password = password;
         this.roles = roles;
@@ -127,6 +136,13 @@ public class User implements UserDetails {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Byte getAge() {
+        return age;
+    }
+    public void setAge(Byte age) {
+        this.age = age;
     }
 
     public String getEmail() {

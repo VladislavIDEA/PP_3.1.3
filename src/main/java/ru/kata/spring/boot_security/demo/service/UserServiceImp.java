@@ -46,20 +46,19 @@ public class UserServiceImp implements UserService {
             throw new IllegalArgumentException("User not found");
         }
 
-        if (!existingUser.getEmail().equals(updatedUser.getEmail()) &&
-                findByEmail(updatedUser.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email уже используется");
-        }
-
+        // Обновляем основные поля
         existingUser.setFirstName(updatedUser.getFirstName());
         existingUser.setLastName(updatedUser.getLastName());
+        existingUser.setAge(updatedUser.getAge());
         existingUser.setEmail(updatedUser.getEmail());
 
-        if (!updatedUser.getPassword().equals(existingUser.getPassword())) {
+        // Обновляем пароль только если он не пустой
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         }
 
-        if (!updatedUser.getRoles().isEmpty()) {
+        // Обновляем роли если они были переданы
+        if (updatedUser.getRoles() != null && !updatedUser.getRoles().isEmpty()) {
             existingUser.setRoles(updatedUser.getRoles());
         }
 
@@ -86,4 +85,5 @@ public class UserServiceImp implements UserService {
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
 }

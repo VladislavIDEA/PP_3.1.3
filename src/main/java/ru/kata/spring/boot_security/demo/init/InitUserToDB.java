@@ -43,11 +43,13 @@ public class InitUserToDB {
             User admin = new User("Admin",
                     "Admin",
                     "admin@admin.ru",
+                    (byte) 30,
                     "admin",
                     rolesAdmin);
             User user = new User("User",
                     "User",
                     "user@user.ru",
+                    (byte) 25,
                     "user",
                     rolesUser);
             roleService.add(adminRole);

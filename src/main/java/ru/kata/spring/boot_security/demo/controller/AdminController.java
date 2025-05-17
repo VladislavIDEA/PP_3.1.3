@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -29,7 +30,11 @@ public class AdminController {
     }
 
     @GetMapping
-    public String listUsers(ModelMap model) {
+    public String listUsers(ModelMap model, Authentication authentication) {
+        if (authentication != null && authentication.getAuthorities().stream()
+                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/user";
+        }
         model.addAttribute("users", userService.findAll());
         return "userListAdmin";
     }
@@ -65,24 +70,45 @@ public class AdminController {
     @PostMapping("/edit")
     public String editUser(@RequestParam("id") int id,
                            @ModelAttribute("user") @Valid User user,
-                           BindingResult result) {
+                           @RequestParam(value = "roles", required = false) List<String> roleNames,
+                           BindingResult result,
+                           ModelMap model) {
+
         if (result.hasErrors()) {
+            model.addAttribute("allRoles", roleService.findAll());
             return "userEditAdmin";
         }
 
+        // Проверка уникальности email
         Optional<User> userWithSameEmail = userService.findByEmail(user.getEmail());
         if (userWithSameEmail.isPresent() && userWithSameEmail.get().getId() != id) {
-
-            result.rejectValue("email",
-                    "error.user",
+            result.rejectValue("email", "error.user",
                     "Этот email уже используется другим пользователем.");
+            model.addAttribute("allRoles", roleService.findAll());
             return "userEditAdmin";
         }
+
+        // Обработка ролей
+        if (roleNames != null && !roleNames.isEmpty()) {
+            Set<Role> roles = new HashSet<>();
+            for (String roleName : roleNames) {
+                roles.add(roleService.findByName(roleName));
+            }
+            user.setRoles(roles);
+        }
+
         userService.update(id, user);
         return "redirect:/admin";
     }
 
     @GetMapping("/delete")
+    public String deleteUserForm(@RequestParam("id") int id, ModelMap model) {
+        User user = userService.findById(id);
+        model.addAttribute("user", user);
+        return "userDeleteAdmin";
+    }
+
+    @PostMapping("/delete")
     public String deleteUser(@RequestParam("id") int id) {
         userService.delete(id);
         return "redirect:/admin";
