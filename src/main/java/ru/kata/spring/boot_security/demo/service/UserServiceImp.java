@@ -10,6 +10,8 @@ import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImp implements UserService {
@@ -84,6 +86,36 @@ public class UserServiceImp implements UserService {
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    @Transactional
+    public void addUserWithRoles(User user, List<String> roleNames) {
+        Set<Role> roles = getRolesFromNames(roleNames);
+        user.setRoles(roles);
+        add(user);
+    }
+
+    @Override
+    @Transactional
+    public void updateUserWithRoles(int id, User user, List<String> roleNames) {
+        Optional<User> existingUser = findByEmail(user.getEmail());
+        if (existingUser.isPresent() && existingUser.get().getId() != id) {
+            throw new IllegalArgumentException("Email уже используется другим пользователем");
+        }
+
+        if (roleNames != null && !roleNames.isEmpty()) {
+            Set<Role> roles = getRolesFromNames(roleNames);
+            user.setRoles(roles);
+        }
+
+        update(id, user);
+    }
+
+    private Set<Role> getRolesFromNames(List<String> roleNames) {
+        return roleNames.stream()
+                .map(roleService::findByName)
+                .collect(Collectors.toSet());
     }
 
 }

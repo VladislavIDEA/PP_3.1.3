@@ -18,4 +18,8 @@ public interface UserService {
     User findById(int id);
 
     Optional<User> findByEmail(String email);
+
+    void addUserWithRoles(User user, List<String> roleNames);
+
+    void updateUserWithRoles(int id, User user, List<String> roleNames);
 }

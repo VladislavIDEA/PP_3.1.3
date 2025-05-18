@@ -6,16 +6,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import javax.validation.Valid;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
@@ -33,9 +29,11 @@ public class AdminController {
     public String listUsers(ModelMap model, Authentication authentication) {
         if (authentication != null && authentication.getAuthorities().stream()
                 .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
-            return "redirect:/user";
+            return "redirect:/access-denied";
         }
         model.addAttribute("users", userService.findAll());
+        model.addAttribute("allRoles", roleService.findAll());
+        model.addAttribute("user", new User());
         return "userListAdmin";
     }
 
@@ -43,21 +41,29 @@ public class AdminController {
     public String addUserForm(ModelMap model) {
         model.addAttribute("user", new User());
         model.addAttribute("allRoles", roleService.findAll());
-        return "userAddAdmin";
+        return "userListAdmin";
     }
 
     @PostMapping("/add")
-    public String addUser(@ModelAttribute("user") User user,
-                          @RequestParam("roles") List<String> roleNames) {
-        Set<Role> roles = new HashSet<>();
-        for (String roleName : roleNames) {
-            roles.add(roleService.findByName(roleName));
+    public String addUser(@ModelAttribute("user") @Valid User user,
+                          BindingResult result,
+                          @RequestParam("roles") List<String> roleNames,
+                          ModelMap model) {
+        if (result.hasErrors()) {
+            model.addAttribute("allRoles", roleService.findAll());
+            model.addAttribute("users", userService.findAll());
+            return "userListAdmin";
         }
-        user.setRoles(roles);
-        userService.add(user);
+        try {
+            userService.addUserWithRoles(user, roleNames);
+        } catch (IllegalArgumentException e) {
+            result.rejectValue("email", "error.user", e.getMessage());
+            model.addAttribute("allRoles", roleService.findAll());
+            model.addAttribute("users", userService.findAll());
+            return "userListAdmin";
+        }
         return "redirect:/admin";
     }
-
 
     @GetMapping("/edit")
     public String editUserForm(@RequestParam("id") int id, ModelMap model) {
@@ -79,25 +85,14 @@ public class AdminController {
             return "userEditAdmin";
         }
 
-        // Проверка уникальности email
-        Optional<User> userWithSameEmail = userService.findByEmail(user.getEmail());
-        if (userWithSameEmail.isPresent() && userWithSameEmail.get().getId() != id) {
-            result.rejectValue("email", "error.user",
-                    "Этот email уже используется другим пользователем.");
+        try {
+            userService.updateUserWithRoles(id, user, roleNames);
+        } catch (IllegalArgumentException e) {
+            result.rejectValue("email", "error.user", e.getMessage());
             model.addAttribute("allRoles", roleService.findAll());
             return "userEditAdmin";
         }
 
-        // Обработка ролей
-        if (roleNames != null && !roleNames.isEmpty()) {
-            Set<Role> roles = new HashSet<>();
-            for (String roleName : roleNames) {
-                roles.add(roleService.findByName(roleName));
-            }
-            user.setRoles(roles);
-        }
-
-        userService.update(id, user);
         return "redirect:/admin";
     }
 

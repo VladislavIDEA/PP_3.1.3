@@ -26,4 +26,11 @@ public class UserController {
         model.addAttribute("user", user);
         return "user";
     }
+    //TODO добавил этот метод
+    @GetMapping("/access-denied")
+    public String accessDenied(Model model) {
+        model.addAttribute("errorMessage", "You don't have permission " +
+                "to access the admin panel.");
+        return "access-denied";
+    }
 }
